@@ -10,8 +10,7 @@ namespace Freshdesk\Exceptions;
  * or conflicting state. For example, if you attempt to Create a Contact with an email that is already associated with 
  * an existing user, this code will be returned
  *
- * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
+ * @package Exceptions 
  */
 class ConflictingStateException extends ApiException
 {

@@ -11,7 +11,6 @@ namespace Freshdesk\Exceptions;
  * invalid ID will return a HTTP 404 status code to let you know that no such ticket exists
  *
  * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
  */
 class NotFoundException extends ApiException
 {

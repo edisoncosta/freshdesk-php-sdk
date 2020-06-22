@@ -1,6 +1,7 @@
 <?php
 
 
+
 namespace Freshdesk\Resources;
 
 use Freshdesk\Resources\Traits\AllTrait;
@@ -125,7 +126,7 @@ class Ticket extends AbstractResource
 
         return $this->api()->request('GET', $this->endpoint($end), null, $query);
     }
-    
+
     /**
      * Filters by ticket fields
      *
@@ -147,10 +148,34 @@ class Ticket extends AbstractResource
      */
     public function search(string $filtersQuery)
     {
-        $end = '/search'.$this->endpoint();
+        $end = '/search' . $this->endpoint();
         $query = [
-            'query' => '"'.$filtersQuery.'"',
+            'query' => '"' . $filtersQuery . '"',
         ];
         return $this->api()->request('GET', $end, null, $query);
+    }
+
+    /**
+     * Create a resource with attachment
+     *
+     * Create a resource with the supplied data
+     *
+     * @api
+     * @param array $data The data
+     * @return array|null
+     * @throws \Freshdesk\Exceptions\AccessDeniedException
+     * @throws \Freshdesk\Exceptions\ApiException
+     * @throws \Freshdesk\Exceptions\AuthenticationException
+     * @throws \Freshdesk\Exceptions\ConflictingStateException
+     * @throws \Freshdesk\Exceptions\NotFoundException
+     * @throws \Freshdesk\Exceptions\RateLimitExceededException
+     * @throws \Freshdesk\Exceptions\UnsupportedContentTypeException
+     * @throws \Freshdesk\Exceptions\MethodNotAllowedException
+     * @throws \Freshdesk\Exceptions\UnsupportedAcceptHeaderException
+     * @throws \Freshdesk\Exceptions\ValidationException
+     */
+    public function createWithAttachment(array $data)
+    {
+        return $this->api()->requestMultipart('POST', $this->endpoint(), $data);
     }
 }

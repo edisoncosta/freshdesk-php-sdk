@@ -10,7 +10,6 @@ namespace Freshdesk\Exceptions;
  * which indicates that the Authorization header is either missing or incorrect
  *
  * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
  */
 class AuthenticationException extends ApiException
 {

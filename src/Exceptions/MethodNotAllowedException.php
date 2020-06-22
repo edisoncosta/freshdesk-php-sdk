@@ -11,8 +11,7 @@ namespace Freshdesk\Exceptions;
  * For example an API PUT request on /api/v2/tickets endpoint will return a HTTP 405 as /api/v2/tickets allows
  * only GET and POST requests
  *
- * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
+ * @package Exceptions 
  */
 class MethodNotAllowedException extends ApiException
 {

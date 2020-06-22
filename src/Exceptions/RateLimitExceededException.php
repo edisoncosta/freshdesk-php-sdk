@@ -9,7 +9,6 @@ namespace Freshdesk\Exceptions;
  * exhausted
  *
  * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
  */
 class RateLimitExceededException extends ApiException
 {

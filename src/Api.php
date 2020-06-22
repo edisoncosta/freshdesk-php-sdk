@@ -9,17 +9,20 @@ use Freshdesk\Exceptions\ConflictingStateException;
 use Freshdesk\Exceptions\RateLimitExceededException;
 use Freshdesk\Exceptions\UnsupportedContentTypeException;
 use Freshdesk\Resources\Agent;
+use Freshdesk\Resources\Article;
 use Freshdesk\Resources\BusinessHour;
-use Freshdesk\Resources\Category;
 use Freshdesk\Resources\Comment;
 use Freshdesk\Resources\Company;
 use Freshdesk\Resources\Contact;
 use Freshdesk\Resources\Conversation;
+use Freshdesk\Resources\Discussion;
 use Freshdesk\Resources\EmailConfig;
+use Freshdesk\Resources\Folder;
 use Freshdesk\Resources\Forum;
 use Freshdesk\Resources\Group;
 use Freshdesk\Resources\Product;
 use Freshdesk\Resources\SLAPolicy;
+use Freshdesk\Resources\Solution;
 use Freshdesk\Resources\Ticket;
 use Freshdesk\Resources\TimeEntry;
 use Freshdesk\Resources\Topic;
@@ -91,12 +94,12 @@ class Api
     public $conversations;
 
     /**
-     * Category resources
+     * Discussion resources
      *
      * @api
-     * @var Category
+     * @var Discussion
      */
-    public $categories;
+    public $discussions;
 
     /**
      * Forum resources
@@ -157,6 +160,30 @@ class Api
     public $slaPolicies;
 
     /**
+     * Solution resources
+     *
+     * @api
+     * @var Solution
+     */
+    public $solutions;
+
+    /**
+     * Folder resources
+     *
+     * @api
+     * @var Folder
+     */
+    public $folders;
+
+    /**
+     * Folder resources
+     *
+     * @api
+     * @var Article
+     */
+    public $articles;
+
+    /**
      * @internal
      * @var Client
      */
@@ -167,6 +194,19 @@ class Api
      * @var string
      */
     private $baseUrl;
+    
+     /**
+     * @api
+     * @var string
+     */
+    public $headers;
+    
+    
+    /**
+     * @api
+     * @var string
+     */
+    public $result;
 
     /**
      * Constructs a new api instance
@@ -182,14 +222,14 @@ class Api
 
         $this->baseUrl = sprintf('https://%s.freshdesk.com/api/v2', $domain);
 
-        $this->client = new Client([
-                'auth' => [$apiKey, 'X']
+        $this->client = new Client(
+            [
+                'auth' => [$apiKey, 'X'],
             ]
         );
 
         $this->setupResources();
     }
-
 
     /**
      * Internal method for handling requests
@@ -219,6 +259,33 @@ class Api
     }
 
     /**
+     * Internal method for handling requests multipart
+     *
+     * @internal
+     * @param $method
+     * @param $endpoint
+     * @param array|null $data
+     * @param array|null $query
+     * @return mixed|null
+     * @throws ApiException
+     * @throws ConflictingStateException
+     * @throws RateLimitExceededException
+     * @throws UnsupportedContentTypeException
+     */
+    public function requestMultipart($method, $endpoint, array $data = null, array $query = null)
+    {
+        $options = ['multipart' => $data];
+
+        if (isset($query)) {
+            $options['query'] = $query;
+        }
+
+        $url = $this->baseUrl . $endpoint;
+
+        return $this->performRequest($method, $url, $options);
+    }
+
+    /**
      * Performs the request
      *
      * @internal
@@ -232,26 +299,19 @@ class Api
      * @throws AuthenticationException
      * @throws ConflictingStateException
      */
-    private function performRequest($method, $url, $options) {
+    private function performRequest($method, $url, $options)
+    {
 
         try {
-            switch ($method) {
-                case 'GET':
-                    return json_decode($this->client->get($url, $options)->getBody(), true);
-                case 'POST':
-                    return json_decode($this->client->post($url, $options)->getBody(), true);
-                case 'PUT':
-                    return json_decode($this->client->put($url, $options)->getBody(), true);
-                case 'DELETE':
-                    return json_decode($this->client->delete($url, $options)->getBody(), true);
-                default:
-                    return null;
-            }
+            $request = $this->client->request($method, $url, $options);
+
+            $this->headers = $request->getHeaders();
+            $this->results = json_decode($request->getBody(), true);
+            return $this;
         } catch (RequestException $e) {
             throw ApiException::create($e);
         }
     }
-
 
     /**
      * @param $apiKey
@@ -277,26 +337,31 @@ class Api
     private function setupResources()
     {
         //People
-        $this->agents = new Agent($this);
+        $this->agents    = new Agent($this);
         $this->companies = new Company($this);
-        $this->contacts = new Contact($this);
-        $this->groups = new Group($this);
+        $this->contacts  = new Contact($this);
+        $this->groups    = new Group($this);
 
         //Tickets
-        $this->tickets = new Ticket($this);
-        $this->timeEntries = new TimeEntry($this);
+        $this->tickets       = new Ticket($this);
+        $this->timeEntries   = new TimeEntry($this);
         $this->conversations = new Conversation($this);
 
         //Discussions
-        $this->categories = new Category($this);
-        $this->forums = new Forum($this);
-        $this->topics = new Topic($this);
-        $this->comments = new Comment($this);
+        $this->discussions = new Discussion($this);
+        $this->forums      = new Forum($this);
+        $this->topics      = new Topic($this);
+        $this->comments    = new Comment($this);
+
+        //Solution
+        $this->solutions = new Solution($this);
+        $this->folders   = new Folder($this);
+        $this->articles  = new Article($this);
 
         //Admin
-        $this->products = new Product($this);
-        $this->emailConfigs = new EmailConfig($this);
-        $this->slaPolicies = new SLAPolicy($this);
+        $this->products      = new Product($this);
+        $this->emailConfigs  = new EmailConfig($this);
+        $this->slaPolicies   = new SLAPolicy($this);
         $this->businessHours = new BusinessHour($this);
     }
 }

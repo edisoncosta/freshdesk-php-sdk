@@ -10,7 +10,6 @@ namespace Freshdesk\Exceptions;
  * Only application/json is supported
  *
  * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
  */
 class UnsupportedContentTypeException extends ApiException
 {

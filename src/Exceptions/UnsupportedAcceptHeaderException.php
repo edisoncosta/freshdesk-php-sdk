@@ -10,7 +10,6 @@ namespace Freshdesk\Exceptions;
  * When uploading files multipart/form-data is supported
  *
  * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
  */
 class UnsupportedAcceptHeaderException extends ApiException
 {

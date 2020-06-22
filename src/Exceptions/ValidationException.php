@@ -10,7 +10,6 @@ namespace Freshdesk\Exceptions;
  * if it is missing, this status code is returned
  *
  * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
  */
 class ValidationException extends ApiException
 {

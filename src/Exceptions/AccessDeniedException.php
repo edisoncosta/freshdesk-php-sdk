@@ -13,7 +13,6 @@ namespace Freshdesk\Exceptions;
  * attempts or that the account has reached the maximum number of agents
  *
  * @package Exceptions
- * @author Edison Costa <edison@keepcloud.io>
  */
 class AccessDeniedException extends ApiException
 {

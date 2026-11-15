@@ -34,7 +34,7 @@ class Company extends AbstractResource
      *
      * @api
      * @param array|null $query
-     * @return mixed|null
+     * @return array|null
      * @throws \Freshdesk\Exceptions\AccessDeniedException
      * @throws \Freshdesk\Exceptions\ApiException
      * @throws \Freshdesk\Exceptions\AuthenticationException
@@ -46,7 +46,7 @@ class Company extends AbstractResource
      * @throws \Freshdesk\Exceptions\UnsupportedAcceptHeaderException
      * @throws \Freshdesk\Exceptions\ValidationException
      */
-    public function fields(array $query = null)
+    public function fields(?array $query = null)
     {
         return $this->api()->request('GET', '/company_fields', null, $query);
     }

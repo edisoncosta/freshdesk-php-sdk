@@ -49,10 +49,10 @@ class Comment extends AbstractResource
 
     /**
      *
-     * Create a topic for a forum
+     * Create a comment for a topic
      *
      * @api
-     * @param int $id
+     * @param int $id The topic id
      * @param array $data
      * @return array|null
      * @throws \Freshdesk\Exceptions\AccessDeniedException
@@ -68,7 +68,7 @@ class Comment extends AbstractResource
      */
     public function create($id, array $data)
     {
-        return $this->api()->request('POST', $this->topicsEndpoint($id . '/topics'), $data);
+        return $this->api()->request('POST', $this->topicsEndpoint($id . '/comments'), $data);
     }
 
     /**
@@ -90,7 +90,7 @@ class Comment extends AbstractResource
      * @throws \Freshdesk\Exceptions\UnsupportedAcceptHeaderException
      * @throws \Freshdesk\Exceptions\ValidationException
      */
-    public function all($id, array $query = null)
+    public function all($id, ?array $query = null)
     {
         return $this->api()->request('GET', $this->topicsEndpoint($id . '/comments'), null, $query);
     }

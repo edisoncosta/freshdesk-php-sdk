@@ -68,10 +68,10 @@ class Article extends AbstractResource
      */
     public function create($id, array $data)
     {
-        return $this->api()->request('POST', $this->folderEndpoint($id), $data);
+        return $this->api()->request('POST', $this->folderEndpoint($id) . '/articles', $data);
     }
 
-    public function forFolder($id, array $query = null)
+    public function forFolder($id, ?array $query = null)
     {
         return $this->api()->request('GET', $this->folderEndpoint($id) . $this->base(), null, $query);
     }

@@ -90,7 +90,7 @@ class TimeEntry extends AbstractResource
      * @throws \Freshdesk\Exceptions\UnsupportedAcceptHeaderException
      * @throws \Freshdesk\Exceptions\ValidationException
      */
-    public function all($id, array $query = null)
+    public function all($id, ?array $query = null)
     {
         return $this->api()->request('GET', $this->ticketsEndpoint($id . '/time_entries'), null, $query);
     }
@@ -115,7 +115,7 @@ class TimeEntry extends AbstractResource
      */
     public function toggle($id)
     {
-        return $this->api()->request('PUT', $this->endpoint($id));
+        return $this->api()->request('PUT', $this->endpoint($id . '/toggle_timer'));
     }
 
 }

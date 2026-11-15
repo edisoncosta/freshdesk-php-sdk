@@ -2,12 +2,12 @@
 
 [![Packagist](https://img.shields.io/badge/Packagist-freshdesk--php--sdk-blue)](https://packagist.org/packages/keepcloud/freshdesk-php-sdk)
 
-This is a PHP 5.6+ SDK for the [Freshdesk](https://www.freshdesk.com) API v2.
+This is a PHP 7.4+ SDK for the [Freshdesk](https://www.freshdesk.com) API v2.
 
 If you have questions, please contact me or open an issue on GitHub.
 
 ## Quick Start
-```phpg
+```php
 require __DIR__ . '/vendor/autoload.php';
 use \Freshdesk\Api;
 
@@ -121,8 +121,54 @@ $policies = $api->slaPolicies->all();
 
 ### Responses
 
-All responses are arrays of data. Please refer to Freshdesk's documentation
-for further information. 
+All responses are arrays of data (or `null` for empty responses, e.g. `DELETE`).
+Please refer to Freshdesk's documentation for further information.
+
+The headers of the most recent response (e.g. `X-RateLimit-Remaining`, `Link`)
+are available via:
+
+```php
+$headers = $api->getLastResponseHeaders();
+$remaining = $headers['X-RateLimit-Remaining'][0] ?? null;
+```
+
+### Errors
+
+Every failed request throws a `Freshdesk\Exceptions\ApiException` (or a subclass
+such as `ValidationException`, `NotFoundException`, `RateLimitExceededException`).
+Network failures (timeouts, DNS) are also wrapped in `ApiException`.
+
+```php
+use Freshdesk\Exceptions\ApiException;
+use Freshdesk\Exceptions\ValidationException;
+
+try {
+    $api->contacts->create(['email' => 'invalid']);
+} catch (ValidationException $e) {
+    foreach ($e->getErrors() as $error) {
+        echo "{$error['field']}: {$error['message']}\n";
+    }
+} catch (ApiException $e) {
+    $status = $e->getStatusCode();   // null on network failures
+    $body   = $e->getResponseBody(); // decoded JSON or null
+}
+```
+
+### HTTP client options
+
+Extra [Guzzle options](https://docs.guzzlephp.org/en/stable/request-options.html)
+can be passed as a third argument:
+
+```php
+$api = new Api($apiKey, $domain, ['timeout' => 10]);
+```
+
+## Testing
+
+```bash
+composer install
+composer test
+```
 
 ### Filtering
 

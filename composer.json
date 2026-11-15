@@ -3,7 +3,13 @@
     "description": "PHP SDK for the Freshdesk API (v2)",
     "type": "library",
     "homepage": "https://github.com/keepcloud/freshdesk-php-sdk",
-    "keywords": ["freshdesk", "customer service", "support", "help desk", "api"],
+    "keywords": [
+        "freshdesk",
+        "customer service",
+        "support",
+        "help desk",
+        "api"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -13,15 +19,31 @@
         },
         {
             "name": "Edison Costa",
-            "email": "keepcloud@hilenium.com",
-            "homepage": "http://keepcloud.io/"
+            "email": "edison@keepcloud.io",
+            "homepage": "https://keepcloud.io/"
         }
     ],
     "require": {
-        "php": ">=7.0",
+        "php": "^7.4 || ^8.0",
         "guzzlehttp/guzzle": "^7.2"
     },
     "autoload": {
-        "psr-4": {"Freshdesk\\": "src/"}
+        "psr-4": {
+            "Freshdesk\\": "src/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Freshdesk\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
     }
 }

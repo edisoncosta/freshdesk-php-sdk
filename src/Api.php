@@ -27,7 +27,7 @@ use Freshdesk\Resources\Ticket;
 use Freshdesk\Resources\TimeEntry;
 use Freshdesk\Resources\Topic;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 
 /**
  * Class for interacting with the Freshdesk Api
@@ -195,18 +195,13 @@ class Api
      */
     private $baseUrl;
     
-     /**
-     * @api
-     * @var string
-     */
-    public $headers;
-    
-    
     /**
+     * Headers of the most recent response
+     *
      * @api
-     * @var string
+     * @var array<string, string[]>
      */
-    public $result;
+    public $headers = [];
 
     /**
      * Constructs a new api instance
@@ -214,18 +209,19 @@ class Api
      * @api
      * @param string $apiKey
      * @param string $domain
+     * @param array $clientOptions Extra Guzzle client options (e.g. timeout, handler). Auth cannot be overridden.
      * @throws Exceptions\InvalidConfigurationException
      */
-    public function __construct($apiKey, $domain)
+    public function __construct($apiKey, $domain, array $clientOptions = [])
     {
         $this->validateConstructorArgs($apiKey, $domain);
 
         $this->baseUrl = sprintf('https://%s.freshdesk.com/api/v2', $domain);
 
         $this->client = new Client(
-            [
+            array_merge($clientOptions, [
                 'auth' => [$apiKey, 'X'],
-            ]
+            ])
         );
 
         $this->setupResources();
@@ -239,13 +235,13 @@ class Api
      * @param $endpoint
      * @param array|null $data
      * @param array|null $query
-     * @return mixed|null
+     * @return array|null Decoded JSON response
      * @throws ApiException
      * @throws ConflictingStateException
      * @throws RateLimitExceededException
      * @throws UnsupportedContentTypeException
      */
-    public function request($method, $endpoint, array $data = null, array $query = null)
+    public function request($method, $endpoint, ?array $data = null, ?array $query = null)
     {
         $options = ['json' => $data];
 
@@ -266,13 +262,13 @@ class Api
      * @param $endpoint
      * @param array|null $data
      * @param array|null $query
-     * @return mixed|null
+     * @return array|null Decoded JSON response
      * @throws ApiException
      * @throws ConflictingStateException
      * @throws RateLimitExceededException
      * @throws UnsupportedContentTypeException
      */
-    public function requestMultipart($method, $endpoint, array $data = null, array $query = null)
+    public function requestMultipart($method, $endpoint, ?array $data = null, ?array $query = null)
     {
         $options = ['multipart' => $data];
 
@@ -293,7 +289,7 @@ class Api
      * @param $method
      * @param $url
      * @param $options
-     * @return mixed|null
+     * @return array|null Decoded JSON response
      * @throws AccessDeniedException
      * @throws ApiException
      * @throws AuthenticationException
@@ -301,16 +297,26 @@ class Api
      */
     private function performRequest($method, $url, $options)
     {
-
         try {
-            $request = $this->client->request($method, $url, $options);
-
-            $this->headers = $request->getHeaders();
-            $this->results = json_decode($request->getBody(), true);
-            return $this;
-        } catch (RequestException $e) {
+            $response = $this->client->request($method, $url, $options);
+        } catch (TransferException $e) {
             throw ApiException::create($e);
         }
+
+        $this->headers = $response->getHeaders();
+
+        return json_decode((string) $response->getBody(), true);
+    }
+
+    /**
+     * Returns the headers of the most recent response (e.g. X-RateLimit-Remaining, Link)
+     *
+     * @api
+     * @return array<string, string[]>
+     */
+    public function getLastResponseHeaders()
+    {
+        return $this->headers;
     }
 
     /**
@@ -322,11 +328,11 @@ class Api
      */
     private function validateConstructorArgs($apiKey, $domain)
     {
-        if (!isset($apiKey)) {
+        if (!is_string($apiKey) || trim($apiKey) === '') {
             throw new Exceptions\InvalidConfigurationException("API key is empty.");
         }
 
-        if (!isset($domain)) {
+        if (!is_string($domain) || trim($domain) === '') {
             throw new Exceptions\InvalidConfigurationException("Domain is empty.");
         }
     }

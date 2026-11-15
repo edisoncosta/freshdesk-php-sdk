@@ -79,7 +79,7 @@ trait MonitorTrait
             'user_id' => $userId
         ];
 
-        return $this->api()->request('POST', $this->endpoint($id . '/follow'), null, $query);
+        return $this->api()->request('DELETE', $this->endpoint($id . '/follow'), null, $query);
     }
 
     /**

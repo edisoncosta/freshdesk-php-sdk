@@ -36,7 +36,7 @@ class Ticket extends AbstractResource
      *
      * @api
      * @param $id
-     * @return mixed|null
+     * @return array|null
      * @throws \Freshdesk\Exceptions\AccessDeniedException
      * @throws \Freshdesk\Exceptions\ApiException
      * @throws \Freshdesk\Exceptions\AuthenticationException
@@ -62,7 +62,7 @@ class Ticket extends AbstractResource
      * authorised to view the ticket fields
      *
      * @param array|null $query
-     * @return mixed|null
+     * @return array|null
      * @throws \Freshdesk\Exceptions\AccessDeniedException
      * @throws \Freshdesk\Exceptions\ApiException
      * @throws \Freshdesk\Exceptions\AuthenticationException
@@ -74,7 +74,7 @@ class Ticket extends AbstractResource
      * @throws \Freshdesk\Exceptions\UnsupportedAcceptHeaderException
      * @throws \Freshdesk\Exceptions\ValidationException
      */
-    public function fields(array $query = null)
+    public function fields(?array $query = null)
     {
         return $this->api()->request('GET', '/ticket_fields', null, $query);
     }
@@ -84,7 +84,7 @@ class Ticket extends AbstractResource
      *
      * @param int $id The ticket id
      * @param array|null $query
-     * @return mixed|null
+     * @return array|null
      * @throws \Freshdesk\Exceptions\AccessDeniedException
      * @throws \Freshdesk\Exceptions\ApiException
      * @throws \Freshdesk\Exceptions\AuthenticationException
@@ -96,7 +96,7 @@ class Ticket extends AbstractResource
      * @throws \Freshdesk\Exceptions\UnsupportedAcceptHeaderException
      * @throws \Freshdesk\Exceptions\ValidationException
      */
-    public function conversations($id, array $query = null)
+    public function conversations($id, ?array $query = null)
     {
         $end = $id . '/conversations';
 
@@ -108,7 +108,7 @@ class Ticket extends AbstractResource
      *
      * @param int $id The ticket id
      * @param array|null $query
-     * @return mixed|null
+     * @return array|null
      * @throws \Freshdesk\Exceptions\AccessDeniedException
      * @throws \Freshdesk\Exceptions\ApiException
      * @throws \Freshdesk\Exceptions\AuthenticationException
@@ -120,7 +120,7 @@ class Ticket extends AbstractResource
      * @throws \Freshdesk\Exceptions\UnsupportedAcceptHeaderException
      * @throws \Freshdesk\Exceptions\ValidationException
      */
-    public function timeEntries($id, array $query = null)
+    public function timeEntries($id, ?array $query = null)
     {
         $end = $id . '/time_entries';
 

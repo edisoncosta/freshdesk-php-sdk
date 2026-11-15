@@ -39,7 +39,7 @@ trait CategoryTrait
      * @throws \Freshdesk\Exceptions\UnsupportedAcceptHeaderException
      * @throws \Freshdesk\Exceptions\ValidationException
      */
-    public function forCategory($id, array $query = null)
+    public function forCategory($id, ?array $query = null)
     {
         return $this->api()->request('GET', $this->categoryEndpoint($id) . $this->base(), null, $query);
     }

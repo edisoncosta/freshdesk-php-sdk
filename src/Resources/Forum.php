@@ -71,6 +71,6 @@ class Forum extends AbstractResource
      */
     public function create($id, array $data)
     {
-        return $this->api()->request('POST', $this->categoryEndpoint($id), $data);
+        return $this->api()->request('POST', $this->categoryEndpoint($id) . '/forums', $data);
     }
 }

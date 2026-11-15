@@ -5,11 +5,14 @@ namespace Freshdesk\Exceptions;
 
 use Exception;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * General Exception
  *
- * Thrown when the Freshdesk API returns an HTTP error code that isn't handled by other exceptions
+ * Thrown when the Freshdesk API returns an HTTP error code that isn't handled by other exceptions,
+ * or when the request fails without a response (e.g. connection error or timeout)
  *
  * @package Exceptions
  */
@@ -18,15 +21,14 @@ class ApiException extends Exception
 
     /**
      * @internal
-     * @param RequestException $e
+     * @param TransferException $e
      * @return AccessDeniedException|ApiException|AuthenticationException|ConflictingStateException|
      * MethodNotAllowedException|NotFoundException|RateLimitExceededException|UnsupportedAcceptHeaderException|
      * UnsupportedContentTypeException|ValidationException
      */
-    public static function create(RequestException $e)
+    public static function create(TransferException $e)
     {
-
-        if ($response = $e->getResponse()) {
+        if ($e instanceof RequestException && $response = $e->getResponse()) {
 
             switch ($response->getStatusCode()) {
                 case 400:
@@ -54,7 +56,7 @@ class ApiException extends Exception
     }
 
     /**
-     * @var RequestException
+     * @var TransferException
      * @internal
      */
     private $exception;
@@ -62,9 +64,10 @@ class ApiException extends Exception
     /**
      * Returns the Request Exception
      *
-     * A Guzzle Request Exception is returned
+     * The underlying Guzzle exception is returned (a RequestException when a response was received,
+     * or e.g. a ConnectException on network failures)
      *
-     * @return RequestException
+     * @return TransferException
      */
     public function getRequestException()
     {
@@ -72,19 +75,71 @@ class ApiException extends Exception
     }
 
     /**
+     * Returns the HTTP response, if any
+     *
+     * @return ResponseInterface|null
+     */
+    public function getResponse()
+    {
+        return $this->exception instanceof RequestException ? $this->exception->getResponse() : null;
+    }
+
+    /**
+     * Returns the HTTP status code of the response, if any
+     *
+     * @return int|null
+     */
+    public function getStatusCode()
+    {
+        $response = $this->getResponse();
+
+        return $response ? $response->getStatusCode() : null;
+    }
+
+    /**
+     * Returns the decoded JSON body of the error response, if any
+     *
+     * @return array|null
+     */
+    public function getResponseBody()
+    {
+        $response = $this->getResponse();
+
+        if ($response === null) {
+            return null;
+        }
+
+        $decoded = json_decode((string) $response->getBody(), true);
+
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    /**
+     * Returns the validation errors returned by Freshdesk (the "errors" key), if any
+     *
+     * Each error contains the keys "field", "message" and "code".
+     *
+     * @return array
+     */
+    public function getErrors()
+    {
+        $body = $this->getResponseBody();
+
+        return isset($body['errors']) && is_array($body['errors']) ? $body['errors'] : [];
+    }
+
+    /**
      * Exception constructor
      *
      * Constructs a new exception.
      *
-     * @param RequestException $e
+     * @param TransferException $e
      * @internal
      */
-    public function __construct(RequestException $e)
+    public function __construct(TransferException $e)
     {
         $this->exception = $e;
-        $this->code      = $e->getCode();
-        $this->message   = $e->getMessage();
 
-        parent::__construct();
+        parent::__construct($e->getMessage(), $e->getCode(), $e);
     }
 }
